@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useChat } from "ai/react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,25 +16,33 @@ import {
   Bot,
   Minimize2,
   Maximize2,
+  Sparkles,
 } from "lucide-react";
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
 
 export function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string | undefined>();
+  const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
+  const [currentRoute, setCurrentRoute] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
-    useChat({
-      api: "/api/chat",
-      initialMessages: [
-        {
-          id: "welcome",
-          role: "assistant",
-          content:
-            "Hi! I'm your finance assistant. I can help you:\n\n- Check your spending (\"How much did I spend on groceries last month?\")\n- Categorize transactions (\"What's this unknown charge?\")\n- Generate reports (\"Show me a monthly summary\")\n- Manage budgets (\"Am I on track this month?\")\n\nWhat would you like to know?",
-        },
-      ],
-    });
+  // Check onboarding status when chat opens
+  useEffect(() => {
+    if (isOpen && needsOnboarding === null) {
+      checkOnboardingStatus();
+    }
+  }, [isOpen, needsOnboarding]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -43,6 +50,135 @@ export function ChatPanel() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const response = await fetch("/api/orchestrate");
+      if (response.ok) {
+        const data = await response.json();
+        setNeedsOnboarding(data.needsOnboarding);
+
+        // Set welcome message based on status
+        if (data.needsOnboarding) {
+          setMessages([
+            {
+              id: "welcome",
+              role: "assistant",
+              content:
+                "Welcome! I'm your personal finance assistant. Before I can give you tailored insights, I'd like to learn about your financial situation.\n\nThis will help me understand your priorities, deliberate trade-offs, and what to watch vs. what to ignore.\n\nReady to get started? Just say hi!",
+            },
+          ]);
+        } else {
+          setMessages([
+            {
+              id: "welcome",
+              role: "assistant",
+              content:
+                "Hi! I'm your finance assistant. I can help you:\n\n- Check your spending\n- Generate insights\n- Manage budgets\n- Answer questions about your finances\n\nWhat would you like to know?",
+            },
+          ]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to check onboarding status:", err);
+      // Fallback to regular chat
+      setNeedsOnboarding(false);
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          content: "Hi! I'm your finance assistant. How can I help you today?",
+        },
+      ]);
+    }
+  };
+
+  const sendMessage = useCallback(async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: messageText,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/orchestrate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: messageText,
+          conversationId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      const data = await response.json();
+
+      // Update conversation ID if provided
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
+      // Track current route for UI hints
+      setCurrentRoute(data.route);
+
+      // Check if onboarding was completed
+      if (data.contextUpdated) {
+        setNeedsOnboarding(false);
+      }
+
+      // Add assistant response
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: data.response,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [conversationId, isLoading]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const getInsight = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/insight");
+      if (!response.ok) throw new Error("Failed to get insight");
+
+      const data = await response.json();
+
+      const insightMessage: Message = {
+        id: `insight-${Date.now()}`,
+        role: "assistant",
+        content: data.insight,
+      };
+
+      setMessages((prev) => [...prev, insightMessage]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get insight");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) {
     return (
@@ -60,16 +196,37 @@ export function ChatPanel() {
     <div
       className={cn(
         "fixed bottom-0 right-0 z-50 flex flex-col border-l bg-background shadow-xl transition-all duration-300",
-        isExpanded ? "h-screen w-[600px]" : "h-[600px] w-[400px] m-4 rounded-lg border"
+        isExpanded
+          ? "h-screen w-[600px]"
+          : "h-[600px] w-[400px] m-4 rounded-lg border"
       )}
     >
       {/* Header */}
       <div className="flex h-14 items-center justify-between border-b px-4">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          <span className="font-semibold">Finance Assistant</span>
+          <span className="font-semibold">
+            {needsOnboarding ? "Financial Setup" : "Finance Assistant"}
+          </span>
+          {currentRoute === "onboarding" && (
+            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+              Setting up
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1">
+          {!needsOnboarding && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={getInsight}
+              disabled={isLoading}
+              className="h-8 w-8"
+              title="Get spending insight"
+            >
+              <Sparkles className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -147,7 +304,7 @@ export function ChatPanel() {
 
           {error && (
             <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              Error: {error.message}
+              Error: {error}
             </div>
           )}
         </div>
@@ -160,12 +317,20 @@ export function ChatPanel() {
         <div className="flex gap-2">
           <Input
             value={input}
-            onChange={handleInputChange}
-            placeholder="Ask about your finances..."
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={
+              needsOnboarding
+                ? "Tell me about your finances..."
+                : "Ask about your finances..."
+            }
             disabled={isLoading}
             className="flex-1"
           />
-          <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isLoading || !input.trim()}
+          >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

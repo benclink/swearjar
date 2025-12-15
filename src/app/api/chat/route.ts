@@ -1,7 +1,7 @@
 import { streamText, tool } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@/lib/supabase/server";
-import { toolSchemas, toolDescriptions } from "@/lib/agent/tools";
+import { toolSchemas, toolDescriptions } from "@/lib/agents/tools";
 import {
   handleQueryTransactions,
   handleGetMonthlySummary,
@@ -10,7 +10,7 @@ import {
   handleCategorizeTransaction,
   handleAddMerchantMapping,
   handleSetBudget,
-} from "@/lib/agent/tool-handlers";
+} from "@/lib/agents/tool-handlers";
 
 export const maxDuration = 60;
 

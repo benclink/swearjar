@@ -163,6 +163,7 @@ export interface Database {
           id: string;
           user_id: string;
           title: string | null;
+          agent_type: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -170,6 +171,7 @@ export interface Database {
           id?: string;
           user_id: string;
           title?: string | null;
+          agent_type?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -177,6 +179,7 @@ export interface Database {
           id?: string;
           user_id?: string;
           title?: string | null;
+          agent_type?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -272,6 +275,102 @@ export interface Database {
           storage_path?: string | null;
           created_at?: string;
           completed_at?: string | null;
+        };
+      };
+      user_context: {
+        Row: {
+          user_id: string;
+          household_members: Json;
+          deliberate_tradeoffs: Json;
+          non_negotiables: Json;
+          watch_patterns: Json;
+          seasonal_patterns: Json;
+          spending_targets: Json;
+          context_narrative: string | null;
+          onboarding_complete: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          household_members?: Json;
+          deliberate_tradeoffs?: Json;
+          non_negotiables?: Json;
+          watch_patterns?: Json;
+          seasonal_patterns?: Json;
+          spending_targets?: Json;
+          context_narrative?: string | null;
+          onboarding_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          household_members?: Json;
+          deliberate_tradeoffs?: Json;
+          non_negotiables?: Json;
+          watch_patterns?: Json;
+          seasonal_patterns?: Json;
+          spending_targets?: Json;
+          context_narrative?: string | null;
+          onboarding_complete?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      onboarding_state: {
+        Row: {
+          user_id: string;
+          conversation_id: string | null;
+          phase: "intro" | "household" | "groceries" | "transport" | "subscriptions" | "bnpl" | "lifestyle" | "synthesis" | "complete";
+          gathered_context: Json;
+          questions_asked: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          conversation_id?: string | null;
+          phase?: "intro" | "household" | "groceries" | "transport" | "subscriptions" | "bnpl" | "lifestyle" | "synthesis" | "complete";
+          gathered_context?: Json;
+          questions_asked?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          conversation_id?: string | null;
+          phase?: "intro" | "household" | "groceries" | "transport" | "subscriptions" | "bnpl" | "lifestyle" | "synthesis" | "complete";
+          gathered_context?: Json;
+          questions_asked?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      insights: {
+        Row: {
+          id: string;
+          user_id: string;
+          content: string;
+          priority: "alert" | "warning" | "watch" | "observation" | "affirmation" | null;
+          data_snapshot: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          content: string;
+          priority?: "alert" | "warning" | "watch" | "observation" | "affirmation" | null;
+          data_snapshot?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          content?: string;
+          priority?: "alert" | "warning" | "watch" | "observation" | "affirmation" | null;
+          data_snapshot?: Json | null;
+          created_at?: string;
         };
       };
     };
