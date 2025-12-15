@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExportButtons } from "@/components/settings/export-buttons";
 
 interface Profile {
   id: string;
@@ -130,9 +130,8 @@ export default async function SettingsPage() {
           <CardTitle>Data Management</CardTitle>
           <CardDescription>Export or manage your financial data</CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
-          <Button variant="outline">Export Transactions (CSV)</Button>
-          <Button variant="outline">Export Budget Report</Button>
+        <CardContent>
+          <ExportButtons />
         </CardContent>
       </Card>
     </div>

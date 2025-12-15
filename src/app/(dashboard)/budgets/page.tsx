@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
-import { Plus, AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
+import { AddBudgetModal } from "@/components/budgets/add-budget-modal";
 
 interface Budget {
   id: string;
@@ -33,6 +33,12 @@ export default async function BudgetsPage() {
     .order("category");
 
   const budgets = budgetsData as Budget[] | null;
+
+  // Get categories for the add budget modal
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("name, classification")
+    .order("display_order");
 
   // Get current month spending
   const now = new Date();
@@ -86,10 +92,10 @@ export default async function BudgetsPage() {
             Track your spending against monthly budgets
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Budget
-        </Button>
+        <AddBudgetModal
+          categories={categories || []}
+          existingCategories={budgets?.map(b => b.category) || []}
+        />
       </div>
 
       {/* Progress Overview */}
