@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatCurrency } from "@/lib/utils";
 import { SpendingOverview } from "@/components/charts/spending-overview";
 import { CategoryBreakdown } from "@/components/charts/category-breakdown";
+import { IncomeExpenseChart } from "@/components/charts/income-expense-chart";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
-import { ArrowDownIcon, ArrowUpIcon, DollarSign, TrendingDown, TrendingUp, AlertCircle } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, DollarSign, TrendingDown, TrendingUp, AlertCircle, Wallet, PiggyBank } from "lucide-react";
 
 interface SpendingRow {
   amount: number;
@@ -58,6 +59,28 @@ async function getDashboardData(userId: string) {
 
   const lastMonthData = lastMonthRaw as Array<{ amount: number; classification: string | null }> | null;
 
+  // Fetch current month income (negative amounts are income)
+  const { data: currentIncomeRaw } = await supabase
+    .from("transactions")
+    .select("amount")
+    .eq("user_id", userId)
+    .gte("date", startOfMonth.toISOString().split("T")[0])
+    .lte("date", endOfMonth.toISOString().split("T")[0])
+    .lt("amount", 0);
+
+  const currentIncomeData = currentIncomeRaw as Array<{ amount: number }> | null;
+
+  // Fetch last month income for comparison
+  const { data: lastIncomeRaw } = await supabase
+    .from("transactions")
+    .select("amount")
+    .eq("user_id", userId)
+    .gte("date", startOfLastMonth.toISOString().split("T")[0])
+    .lte("date", endOfLastMonth.toISOString().split("T")[0])
+    .lt("amount", 0);
+
+  const lastIncomeData = lastIncomeRaw as Array<{ amount: number }> | null;
+
   // Fetch transactions needing review
   const { count: needsReviewCount } = await supabase
     .from("transactions")
@@ -81,13 +104,17 @@ async function getDashboardData(userId: string) {
     essential: currentMonthData?.filter(t => t.classification === "Essential").reduce((sum, t) => sum + Number(t.amount), 0) || 0,
     discretionary: currentMonthData?.filter(t => t.classification === "Discretionary").reduce((sum, t) => sum + Number(t.amount), 0) || 0,
     total: 0,
+    income: currentIncomeData?.reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0) || 0,
+    netSavings: 0,
   };
   currentMonth.total = currentMonth.essential + currentMonth.discretionary;
+  currentMonth.netSavings = currentMonth.income - currentMonth.total;
 
   const lastMonth = {
     essential: lastMonthData?.filter(t => t.classification === "Essential").reduce((sum, t) => sum + Number(t.amount), 0) || 0,
     discretionary: lastMonthData?.filter(t => t.classification === "Discretionary").reduce((sum, t) => sum + Number(t.amount), 0) || 0,
     total: 0,
+    income: lastIncomeData?.reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0) || 0,
   };
   lastMonth.total = lastMonth.essential + lastMonth.discretionary;
 
@@ -96,6 +123,7 @@ async function getDashboardData(userId: string) {
     total: lastMonth.total > 0 ? ((currentMonth.total - lastMonth.total) / lastMonth.total) * 100 : 0,
     essential: lastMonth.essential > 0 ? ((currentMonth.essential - lastMonth.essential) / lastMonth.essential) * 100 : 0,
     discretionary: lastMonth.discretionary > 0 ? ((currentMonth.discretionary - lastMonth.discretionary) / lastMonth.discretionary) * 100 : 0,
+    income: lastMonth.income > 0 ? ((currentMonth.income - lastMonth.income) / lastMonth.income) * 100 : 0,
   };
 
   // Group by category for chart
@@ -137,8 +165,27 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">Your financial overview for {monthName}</p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Summary Cards - Row 1: Income & Savings */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Income</CardTitle>
+            <Wallet className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(data.currentMonth.income)}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              {data.change.income > 0 ? (
+                <ArrowUpIcon className="h-3 w-3 text-green-500" />
+              ) : data.change.income < 0 ? (
+                <ArrowDownIcon className="h-3 w-3 text-destructive" />
+              ) : null}
+              {data.change.income !== 0 && `${Math.abs(data.change.income).toFixed(1)}% from last month`}
+              {data.change.income === 0 && "No change from last month"}
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Spending</CardTitle>
@@ -157,6 +204,28 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
+        <Card className={data.currentMonth.netSavings >= 0 ? "border-green-500/50" : "border-red-500/50"}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
+            <PiggyBank className={`h-4 w-4 ${data.currentMonth.netSavings >= 0 ? "text-green-500" : "text-destructive"}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${data.currentMonth.netSavings >= 0 ? "text-green-600" : "text-destructive"}`}>
+              {data.currentMonth.netSavings >= 0 ? "+" : ""}{formatCurrency(data.currentMonth.netSavings)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {data.currentMonth.income > 0
+                ? data.currentMonth.netSavings >= 0
+                  ? `Saving ${((data.currentMonth.netSavings / data.currentMonth.income) * 100).toFixed(0)}% of income`
+                  : `Overspent by ${((Math.abs(data.currentMonth.netSavings) / data.currentMonth.income) * 100).toFixed(0)}% of income`
+                : "No income recorded"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Summary Cards - Row 2: Spending Breakdown */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Essential</CardTitle>
@@ -165,9 +234,11 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(data.currentMonth.essential)}</div>
             <p className="text-xs text-muted-foreground">
-              {data.currentMonth.total > 0
-                ? ((data.currentMonth.essential / data.currentMonth.total) * 100).toFixed(0)
-                : 0}% of total spending
+              {data.currentMonth.income > 0
+                ? `${((data.currentMonth.essential / data.currentMonth.income) * 100).toFixed(0)}% of income`
+                : data.currentMonth.total > 0
+                ? `${((data.currentMonth.essential / data.currentMonth.total) * 100).toFixed(0)}% of spending`
+                : "0%"}
             </p>
           </CardContent>
         </Card>
@@ -180,9 +251,11 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(data.currentMonth.discretionary)}</div>
             <p className="text-xs text-muted-foreground">
-              {data.currentMonth.total > 0
-                ? ((data.currentMonth.discretionary / data.currentMonth.total) * 100).toFixed(0)
-                : 0}% of total spending
+              {data.currentMonth.income > 0
+                ? `${((data.currentMonth.discretionary / data.currentMonth.income) * 100).toFixed(0)}% of income`
+                : data.currentMonth.total > 0
+                ? `${((data.currentMonth.discretionary / data.currentMonth.total) * 100).toFixed(0)}% of spending`
+                : "0%"}
             </p>
           </CardContent>
         </Card>
@@ -199,14 +272,44 @@ export default async function DashboardPage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Spending Rate Progress */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Spending Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {data.currentMonth.income > 0
+                ? `${((data.currentMonth.total / data.currentMonth.income) * 100).toFixed(0)}%`
+                : "N/A"}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              of income spent this month
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Spending Overview</CardTitle>
-            <CardDescription>Essential vs Discretionary spending</CardDescription>
+            <CardTitle>Income vs Expenses</CardTitle>
+            <CardDescription>Monthly cash flow overview</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <IncomeExpenseChart
+              income={data.currentMonth.income}
+              expenses={data.currentMonth.total}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Spending Breakdown</CardTitle>
+            <CardDescription>Essential vs Discretionary</CardDescription>
           </CardHeader>
           <CardContent>
             <SpendingOverview
@@ -218,8 +321,8 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Category Breakdown</CardTitle>
-            <CardDescription>Top spending categories this month</CardDescription>
+            <CardTitle>By Category</CardTitle>
+            <CardDescription>Top spending categories</CardDescription>
           </CardHeader>
           <CardContent>
             <CategoryBreakdown data={data.byCategory} />
