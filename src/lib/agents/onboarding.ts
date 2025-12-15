@@ -115,11 +115,22 @@ ${state.questionsAsked.join("\n")}`;
   // Track if onboarding was completed
   let finalContext: UserContext | undefined;
 
-  // Handle tool use
-  while (response.stop_reason === "tool_use") {
+  // Handle tool use - keep looping until we get a text response
+  const maxIterations = 10; // Safety limit
+  let iterations = 0;
+
+  while (iterations < maxIterations) {
+    iterations++;
+
+    // Check if we have tool use blocks to process
     const toolUseBlocks = response.content.filter(
       (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
     );
+
+    // If no tool use, we're done with the loop
+    if (toolUseBlocks.length === 0) {
+      break;
+    }
 
     const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
       toolUseBlocks.map(async (toolUse) => {
@@ -140,7 +151,7 @@ ${state.questionsAsked.join("\n")}`;
           return {
             type: "tool_result" as const,
             tool_use_id: toolUse.id,
-            content: `Transitioned to phase: ${input.next_phase}`,
+            content: `Transitioned to phase: ${input.next_phase}. Now continue the conversation by asking the user about this topic.`,
           };
         }
 
@@ -157,7 +168,7 @@ ${state.questionsAsked.join("\n")}`;
           return {
             type: "tool_result" as const,
             tool_use_id: toolUse.id,
-            content: "Onboarding complete! Context has been saved.",
+            content: "Onboarding complete! Context has been saved. Now give the user a brief confirmation message.",
           };
         }
 
@@ -189,9 +200,29 @@ ${state.questionsAsked.join("\n")}`;
   }
 
   // Extract text response
-  const textContent = response.content.find(
+  let textContent = response.content.find(
     (block): block is Anthropic.TextBlock => block.type === "text"
   );
+
+  // If no text content, make one more request without tools to force a text response
+  if (!textContent?.text) {
+    messages.push({ role: "assistant", content: response.content });
+    messages.push({ role: "user", content: "Please continue with your response to the user." });
+
+    const fallbackResponse = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages,
+    });
+
+    textContent = fallbackResponse.content.find(
+      (block): block is Anthropic.TextBlock => block.type === "text"
+    );
+
+    // Update response for saving
+    response = fallbackResponse;
+  }
 
   // Save conversation messages
   await saveConversationMessages(supabase, convId!, userId, userMessage, response.content);
@@ -200,7 +231,7 @@ ${state.questionsAsked.join("\n")}`;
   const isComplete = state.phase === "complete";
 
   return {
-    response: textContent?.text || "",
+    response: textContent?.text || "I'm having trouble processing that. Could you try again?",
     complete: isComplete,
     context: isComplete ? (finalContext || state.gatheredContext as UserContext) : undefined,
     conversationId: convId,
