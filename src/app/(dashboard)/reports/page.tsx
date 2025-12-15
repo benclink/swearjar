@@ -7,19 +7,19 @@ const reports = [
     title: "Monthly Summary",
     description: "Detailed breakdown of spending by category for any month",
     icon: Calendar,
-    href: "/dashboard/reports/monthly",
+    href: "/reports/monthly",
   },
   {
     title: "Essential vs Discretionary",
     description: "Analysis of your spending balance and trends over time",
     icon: TrendingUp,
-    href: "/dashboard/reports/balance",
+    href: "/reports/balance",
   },
   {
     title: "Subscription Audit",
     description: "Review all recurring subscriptions and their annual cost",
     icon: CreditCard,
-    href: "/dashboard/reports/subscriptions",
+    href: "/reports/subscriptions",
   },
 ];
 

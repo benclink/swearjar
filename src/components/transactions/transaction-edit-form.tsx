@@ -67,7 +67,7 @@ export function TransactionEditForm({ transaction, categories }: TransactionEdit
       setError(result.error);
       setIsDeleting(false);
     } else {
-      router.push("/dashboard/transactions");
+      router.push("/transactions");
     }
   };
 

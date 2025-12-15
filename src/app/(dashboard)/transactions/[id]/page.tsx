@@ -69,7 +69,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
       {/* Header */}
       <div>
         <Link
-          href="/dashboard/transactions"
+          href="/transactions"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -204,7 +204,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
               {similarTransactions.map((t) => (
                 <Link
                   key={t.id}
-                  href={`/dashboard/transactions/${t.id}`}
+                  href={`/transactions/${t.id}`}
                   className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-3">

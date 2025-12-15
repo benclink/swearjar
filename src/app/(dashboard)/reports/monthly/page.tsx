@@ -105,19 +105,19 @@ export default async function MonthlyReportPage({ searchParams }: PageProps) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <Link href="/dashboard/reports" className="hover:underline">Reports</Link>
+            <Link href="/reports" className="hover:underline">Reports</Link>
             <span>/</span>
             <span>Monthly Summary</span>
           </div>
           <h1 className="text-3xl font-bold">{monthName}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/dashboard/reports/monthly?month=${prevMonth.getMonth() + 1}&year=${prevMonth.getFullYear()}`}>
+          <Link href={`/reports/monthly?month=${prevMonth.getMonth() + 1}&year=${prevMonth.getFullYear()}`}>
             <Button variant="outline" size="icon">
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <Link href={`/dashboard/reports/monthly?month=${nextMonth.getMonth() + 1}&year=${nextMonth.getFullYear()}`}>
+          <Link href={`/reports/monthly?month=${nextMonth.getMonth() + 1}&year=${nextMonth.getFullYear()}`}>
             <Button variant="outline" size="icon" disabled={isCurrentMonth}>
               <ChevronRight className="h-4 w-4" />
             </Button>

@@ -293,7 +293,7 @@ export default function ImportPage() {
                 <Button variant="outline" onClick={resetImport}>
                   Import More
                 </Button>
-                <Button onClick={() => router.push("/dashboard/transactions")}>
+                <Button onClick={() => router.push("/transactions")}>
                   View Transactions
                 </Button>
               </div>

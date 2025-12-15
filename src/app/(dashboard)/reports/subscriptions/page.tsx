@@ -162,7 +162,7 @@ export default async function SubscriptionsPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-          <Link href="/dashboard/reports" className="hover:underline">Reports</Link>
+          <Link href="/reports" className="hover:underline">Reports</Link>
           <span>/</span>
           <span>Subscription Audit</span>
         </div>

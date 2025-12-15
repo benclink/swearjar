@@ -89,7 +89,7 @@ export default async function BalanceReportPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-          <Link href="/dashboard/reports" className="hover:underline">Reports</Link>
+          <Link href="/reports" className="hover:underline">Reports</Link>
           <span>/</span>
           <span>Essential vs Discretionary</span>
         </div>
@@ -190,7 +190,7 @@ export default async function BalanceReportPage() {
               {[...months].reverse().map((m) => (
                 <Link
                   key={`${m.year}-${m.monthNum}`}
-                  href={`/dashboard/reports/monthly?month=${m.monthNum}&year=${m.year}`}
+                  href={`/reports/monthly?month=${m.monthNum}&year=${m.year}`}
                   className="flex items-center justify-between py-2 border-b last:border-0 hover:bg-muted/50 -mx-2 px-2 rounded"
                 >
                   <div>

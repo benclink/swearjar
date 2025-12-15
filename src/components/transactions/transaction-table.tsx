@@ -56,7 +56,7 @@ export function TransactionTable({
               <tr
                 key={transaction.id}
                 className="border-b last:border-0 hover:bg-muted/50 cursor-pointer"
-                onClick={() => router.push(`/dashboard/transactions/${transaction.id}`)}
+                onClick={() => router.push(`/transactions/${transaction.id}`)}
               >
                 <td className="py-3 text-sm">
                   {formatDate(transaction.date)}

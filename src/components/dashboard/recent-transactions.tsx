@@ -75,7 +75,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       ))}
       <div className="pt-2">
         <Link
-          href="/dashboard/transactions"
+          href="/transactions"
           className="text-sm text-primary hover:underline"
         >
           View all transactions →

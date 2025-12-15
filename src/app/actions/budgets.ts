@@ -58,7 +58,7 @@ export async function createBudget(data: {
     }
   }
 
-  revalidatePath("/dashboard/budgets");
+  revalidatePath("/budgets");
   revalidatePath("/dashboard");
 
   return { success: true };
@@ -82,7 +82,7 @@ export async function deleteBudget(budgetId: string) {
     return { error: error.message };
   }
 
-  revalidatePath("/dashboard/budgets");
+  revalidatePath("/budgets");
   revalidatePath("/dashboard");
 
   return { success: true };

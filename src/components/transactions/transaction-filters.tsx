@@ -46,7 +46,7 @@ export function TransactionFilters({ categories }: TransactionFiltersProps) {
     setStartDate("");
     setEndDate("");
     setNeedsReview(false);
-    router.push("/dashboard/transactions");
+    router.push("/transactions");
   };
 
   const hasFilters = search || category || classification || startDate || endDate || needsReview;

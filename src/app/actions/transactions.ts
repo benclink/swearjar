@@ -33,8 +33,8 @@ export async function updateTransaction(
     return { error: String(error.message || error) };
   }
 
-  revalidatePath("/dashboard/transactions");
-  revalidatePath(`/dashboard/transactions/${transactionId}`);
+  revalidatePath("/transactions");
+  revalidatePath(`/transactions/${transactionId}`);
   revalidatePath("/dashboard");
 
   return { success: true };
@@ -58,7 +58,7 @@ export async function deleteTransaction(transactionId: string) {
     return { error: String(error.message || error) };
   }
 
-  revalidatePath("/dashboard/transactions");
+  revalidatePath("/transactions");
   revalidatePath("/dashboard");
 
   return { success: true };
