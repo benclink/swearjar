@@ -159,22 +159,25 @@ export default async function DashboardPage() {
   const monthName = now.toLocaleDateString("en-AU", { month: "long", year: "numeric" });
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Your financial overview for {monthName}</p>
+    <div className="p-6 space-y-6 max-w-7xl">
+      {/* Page Header */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">{monthName}</p>
       </div>
 
       {/* Summary Cards - Row 1: Income & Savings */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income</CardTitle>
-            <Wallet className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Income</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Wallet className="h-4 w-4 text-green-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(data.currentMonth.income)}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <div className="text-2xl font-semibold tabular-nums text-green-600">{formatCurrency(data.currentMonth.income)}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
               {data.change.income > 0 ? (
                 <ArrowUpIcon className="h-3 w-3 text-green-500" />
               ) : data.change.income < 0 ? (
@@ -188,12 +191,14 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spending</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Spending</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(data.currentMonth.total)}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <div className="text-2xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.total)}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
               {data.change.total > 0 ? (
                 <ArrowUpIcon className="h-3 w-3 text-destructive" />
               ) : (
@@ -204,16 +209,18 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className={data.currentMonth.netSavings >= 0 ? "border-green-500/50" : "border-red-500/50"}>
+        <Card className={data.currentMonth.netSavings >= 0 ? "border-green-500/30 bg-green-500/[0.02]" : "border-red-500/30 bg-red-500/[0.02]"}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
-            <PiggyBank className={`h-4 w-4 ${data.currentMonth.netSavings >= 0 ? "text-green-500" : "text-destructive"}`} />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Net Savings</CardTitle>
+            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${data.currentMonth.netSavings >= 0 ? "bg-green-500/10" : "bg-red-500/10"}`}>
+              <PiggyBank className={`h-4 w-4 ${data.currentMonth.netSavings >= 0 ? "text-green-600" : "text-destructive"}`} />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${data.currentMonth.netSavings >= 0 ? "text-green-600" : "text-destructive"}`}>
+            <div className={`text-2xl font-semibold tabular-nums ${data.currentMonth.netSavings >= 0 ? "text-green-600" : "text-destructive"}`}>
               {data.currentMonth.netSavings >= 0 ? "+" : ""}{formatCurrency(data.currentMonth.netSavings)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               {data.currentMonth.income > 0
                 ? data.currentMonth.netSavings >= 0
                   ? `Saving ${((data.currentMonth.netSavings / data.currentMonth.income) * 100).toFixed(0)}% of income`
@@ -225,15 +232,17 @@ export default async function DashboardPage() {
       </div>
 
       {/* Summary Cards - Row 2: Spending Breakdown */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Essential</CardTitle>
-            <TrendingDown className="h-4 w-4 text-essential" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Essential</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-essential/10 flex items-center justify-center">
+              <TrendingDown className="h-4 w-4 text-essential" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(data.currentMonth.essential)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.essential)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {data.currentMonth.income > 0
                 ? `${((data.currentMonth.essential / data.currentMonth.income) * 100).toFixed(0)}% of income`
                 : data.currentMonth.total > 0
@@ -245,12 +254,14 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Discretionary</CardTitle>
-            <TrendingUp className="h-4 w-4 text-discretionary" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Discretionary</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-discretionary/10 flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-discretionary" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(data.currentMonth.discretionary)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.discretionary)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               {data.currentMonth.income > 0
                 ? `${((data.currentMonth.discretionary / data.currentMonth.income) * 100).toFixed(0)}% of income`
                 : data.currentMonth.total > 0
@@ -262,12 +273,14 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Needs Review</CardTitle>
-            <AlertCircle className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Needs Review</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-orange-500" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.needsReviewCount}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-semibold tabular-nums">{data.needsReviewCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Transactions to categorize
             </p>
           </CardContent>
@@ -276,15 +289,15 @@ export default async function DashboardPage() {
         {/* Spending Rate Progress */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Spending Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Spending Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-semibold tabular-nums">
               {data.currentMonth.income > 0
                 ? `${((data.currentMonth.total / data.currentMonth.income) * 100).toFixed(0)}%`
                 : "N/A"}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               of income spent this month
             </p>
           </CardContent>

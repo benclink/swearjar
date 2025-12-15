@@ -4,60 +4,68 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 99%;
+    --foreground: 220 20% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --popover-foreground: 220 20% 10%;
+    --primary: 220 25% 14%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 10%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+    --accent: 220 14% 94%;
+    --accent-foreground: 220 20% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 25% 14%;
     --radius: 0.5rem;
 
     /* Finance-specific colors */
-    --essential: 142 76% 36%;
+    --essential: 152 60% 36%;
     --essential-foreground: 0 0% 100%;
-    --discretionary: 45 93% 47%;
+    --discretionary: 38 92% 50%;
     --discretionary-foreground: 0 0% 0%;
+
+    /* Status colors */
+    --success: 152 60% 36%;
+    --warning: 38 92% 50%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --background: 220 20% 7%;
+    --foreground: 220 14% 96%;
+    --card: 220 20% 9%;
+    --card-foreground: 220 14% 96%;
+    --popover: 220 20% 9%;
+    --popover-foreground: 220 14% 96%;
+    --primary: 220 14% 96%;
+    --primary-foreground: 220 20% 7%;
+    --secondary: 220 16% 14%;
+    --secondary-foreground: 220 14% 96%;
+    --muted: 220 16% 14%;
+    --muted-foreground: 220 10% 56%;
+    --accent: 220 16% 16%;
+    --accent-foreground: 220 14% 96%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 16% 16%;
+    --input: 220 16% 16%;
+    --ring: 220 14% 80%;
 
     /* Finance-specific colors (dark mode) */
-    --essential: 142 70% 45%;
+    --essential: 152 55% 42%;
     --essential-foreground: 0 0% 100%;
-    --discretionary: 45 90% 55%;
+    --discretionary: 38 85% 55%;
     --discretionary-foreground: 0 0% 0%;
+
+    /* Status colors */
+    --success: 152 55% 42%;
+    --warning: 38 85% 55%;
   }
 }
 
@@ -65,7 +73,46 @@
   * {
     @apply border-border;
   }
+
+  html {
+    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Improved focus states */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Smoother transitions globally */
+  button, a, input, select, textarea {
+    @apply transition-colors duration-150;
+  }
+
+  /* Better number formatting in tables and data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Subtle text balance for headings */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
