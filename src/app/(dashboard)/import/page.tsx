@@ -133,9 +133,9 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-6 lg:p-10 space-y-10 max-w-7xl mx-auto">
       <header>
-        <h1 className="text-lg font-medium">Import</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Import</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Upload CSV files from Ubank, PayPal, or other sources
         </p>

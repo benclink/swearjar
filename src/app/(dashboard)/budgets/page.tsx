@@ -99,10 +99,10 @@ export default async function BudgetsPage() {
   const remainingFromIncome = totalIncome - totalSpent;
 
   return (
-    <div className="p-8 space-y-8 max-w-6xl">
-      <header className="flex items-center justify-between">
+    <div className="p-6 lg:p-10 space-y-10 max-w-7xl mx-auto">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-medium">Budgets</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Budgets</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {Math.round(monthProgress * 100)}% through {now.toLocaleDateString("en-AU", { month: "long" })}
           </p>
@@ -114,32 +114,32 @@ export default async function BudgetsPage() {
       </header>
 
       {/* Key Metrics */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Income</p>
-          <p className="text-2xl font-medium tabular-nums">{formatCurrency(totalIncome)}</p>
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Income</p>
+          <p className="text-2xl lg:text-3xl font-semibold tabular-nums">{formatCurrency(totalIncome)}</p>
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Budgeted</p>
-          <p className="text-2xl font-medium tabular-nums">{formatCurrency(totalBudgeted)}</p>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Budgeted</p>
+          <p className="text-2xl lg:text-3xl font-semibold tabular-nums">{formatCurrency(totalBudgeted)}</p>
           {totalIncome > 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground">
               {((totalBudgeted / totalIncome) * 100).toFixed(0)}% allocated
             </p>
           )}
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Unallocated</p>
-          <p className={`text-2xl font-medium tabular-nums ${unallocatedIncome < 0 ? "text-destructive" : ""}`}>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Unallocated</p>
+          <p className={`text-2xl lg:text-3xl font-semibold tabular-nums ${unallocatedIncome < 0 ? "text-destructive" : ""}`}>
             {formatCurrency(unallocatedIncome)}
           </p>
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Remaining</p>
-          <p className={`text-2xl font-medium tabular-nums ${remainingFromIncome >= 0 ? "text-essential" : "text-destructive"}`}>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Remaining</p>
+          <p className={`text-2xl lg:text-3xl font-semibold tabular-nums ${remainingFromIncome >= 0 ? "text-essential" : "text-destructive"}`}>
             {remainingFromIncome >= 0 ? "+" : ""}{formatCurrency(remainingFromIncome)}
           </p>
         </div>
@@ -173,13 +173,13 @@ export default async function BudgetsPage() {
       {/* Budget Cards */}
       {budgetStatus.length === 0 ? (
         <Card>
-          <CardContent className="py-12">
+          <CardContent className="py-16">
             <div className="text-center">
-              <p className="font-medium">No budgets set</p>
+              <p className="font-semibold text-lg">No budgets set</p>
               {totalIncome > 0 && (
-                <div className="mt-4 text-sm text-muted-foreground">
+                <div className="mt-6 text-sm text-muted-foreground">
                   <p>Suggested allocations based on your income:</p>
-                  <div className="flex justify-center gap-4 mt-2">
+                  <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4">
                     <span>Essentials: {formatCurrency(totalIncome * 0.5)}</span>
                     <span>Discretionary: {formatCurrency(totalIncome * 0.3)}</span>
                     <span>Savings: {formatCurrency(totalIncome * 0.2)}</span>
@@ -190,36 +190,36 @@ export default async function BudgetsPage() {
           </CardContent>
         </Card>
       ) : (
-        <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {budgetStatus.map((budget) => (
             <Card key={budget.id}>
-              <CardHeader className="pb-3">
+              <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">{budget.category}</CardTitle>
-                  <span className={`text-xs ${budget.onTrack ? "text-essential" : "text-discretionary"}`}>
+                  <CardTitle>{budget.category}</CardTitle>
+                  <span className={`text-xs font-medium ${budget.onTrack ? "text-essential" : "text-discretionary"}`}>
                     {budget.onTrack ? "On track" : "Over pace"}
                   </span>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm tabular-nums">
-                    <span>{formatCurrency(budget.actual)}</span>
+                <div className="space-y-4">
+                  <div className="flex justify-between tabular-nums">
+                    <span className="font-semibold">{formatCurrency(budget.actual)}</span>
                     <span className="text-muted-foreground">of {formatCurrency(budget.amount)}</span>
                   </div>
-                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${
+                      className={`h-full transition-all ${
                         budget.percentUsed > 100
                           ? "bg-destructive"
                           : budget.onTrack
-                          ? "bg-foreground"
+                          ? "bg-essential"
                           : "bg-discretionary"
                       }`}
                       style={{ width: `${Math.min(budget.percentUsed, 100)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>{budget.percentUsed}%</span>
                     <span>{formatCurrency(budget.remaining)} left</span>
                   </div>

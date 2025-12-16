@@ -162,59 +162,65 @@ export default async function DashboardPage() {
     : null;
 
   return (
-    <div className="p-8 space-y-8 max-w-6xl">
+    <div className="p-6 lg:p-10 space-y-10 max-w-7xl mx-auto">
       {/* Header */}
       <header>
-        <h1 className="text-lg font-medium">{monthName}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{monthName}</h1>
       </header>
 
-      {/* Key Metrics */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Income</p>
-          <p className="text-2xl font-medium tabular-nums">{formatCurrency(data.currentMonth.income)}</p>
+      {/* Key Metrics - responsive grid */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-10">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Income</p>
+          <p className="text-2xl lg:text-3xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.income)}</p>
           {data.change.income !== 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.change.income > 0 ? "+" : ""}{data.change.income.toFixed(0)}% vs last month
+            <p className="text-sm text-muted-foreground">
+              <span className={data.change.income > 0 ? "text-essential" : "text-destructive"}>
+                {data.change.income > 0 ? "+" : ""}{data.change.income.toFixed(0)}%
+              </span>
+              {" "}vs last month
             </p>
           )}
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Spending</p>
-          <p className="text-2xl font-medium tabular-nums">{formatCurrency(data.currentMonth.total)}</p>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Spending</p>
+          <p className="text-2xl lg:text-3xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.total)}</p>
           {data.change.total !== 0 && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {data.change.total > 0 ? "+" : ""}{data.change.total.toFixed(0)}% vs last month
+            <p className="text-sm text-muted-foreground">
+              <span className={data.change.total < 0 ? "text-essential" : "text-discretionary"}>
+                {data.change.total > 0 ? "+" : ""}{data.change.total.toFixed(0)}%
+              </span>
+              {" "}vs last month
             </p>
           )}
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Net</p>
-          <p className={`text-2xl font-medium tabular-nums ${data.currentMonth.netSavings >= 0 ? "text-essential" : "text-destructive"}`}>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Net</p>
+          <p className={`text-2xl lg:text-3xl font-semibold tabular-nums ${data.currentMonth.netSavings >= 0 ? "text-essential" : "text-destructive"}`}>
             {data.currentMonth.netSavings >= 0 ? "+" : ""}{formatCurrency(data.currentMonth.netSavings)}
           </p>
           {savingsRate && (
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground">
               {data.currentMonth.netSavings >= 0 ? `${savingsRate}% saved` : `${Math.abs(Number(savingsRate))}% overspent`}
             </p>
           )}
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Review</p>
-          <p className="text-2xl font-medium tabular-nums">{data.needsReviewCount}</p>
-          <p className="text-xs text-muted-foreground mt-1">transactions</p>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Review</p>
+          <p className="text-2xl lg:text-3xl font-semibold tabular-nums">{data.needsReviewCount}</p>
+          <p className="text-sm text-muted-foreground">transactions</p>
         </div>
       </section>
 
       {/* Spending Breakdown */}
-      <section className="grid grid-cols-2 gap-6 pt-2">
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Essential</p>
-          <p className="text-xl font-medium tabular-nums">{formatCurrency(data.currentMonth.essential)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+      <section className="grid grid-cols-2 gap-6 lg:gap-10">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Essential</p>
+          <p className="text-xl lg:text-2xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.essential)}</p>
+          <p className="text-sm text-muted-foreground">
             {data.currentMonth.income > 0
               ? `${((data.currentMonth.essential / data.currentMonth.income) * 100).toFixed(0)}% of income`
               : data.currentMonth.total > 0
@@ -223,10 +229,10 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Discretionary</p>
-          <p className="text-xl font-medium tabular-nums">{formatCurrency(data.currentMonth.discretionary)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Discretionary</p>
+          <p className="text-xl lg:text-2xl font-semibold tabular-nums">{formatCurrency(data.currentMonth.discretionary)}</p>
+          <p className="text-sm text-muted-foreground">
             {data.currentMonth.income > 0
               ? `${((data.currentMonth.discretionary / data.currentMonth.income) * 100).toFixed(0)}% of income`
               : data.currentMonth.total > 0
@@ -236,8 +242,8 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* Charts */}
-      <section className="grid md:grid-cols-3 gap-6 pt-4">
+      {/* Charts - responsive grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Cash Flow</CardTitle>
@@ -262,7 +268,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader>
             <CardTitle>Categories</CardTitle>
           </CardHeader>
@@ -273,7 +279,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Recent Activity */}
-      <section className="pt-4">
+      <section>
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>

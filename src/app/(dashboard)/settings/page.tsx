@@ -40,33 +40,33 @@ export default async function SettingsPage() {
   const profile = profileData as Profile | null;
 
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-6 lg:p-10 space-y-10 max-w-7xl mx-auto">
       <header>
-        <h1 className="text-lg font-medium">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
       </header>
 
       {/* Profile */}
       <section>
-        <h2 className="text-xs text-muted-foreground uppercase tracking-wide mb-4">Account</h2>
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Email</p>
-            <p className="text-sm">{user.email}</p>
+        <h2 className="text-xs text-muted-foreground uppercase tracking-wider mb-6">Account</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-10">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Email</p>
+            <p>{user.email}</p>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Display Name</p>
-            <p className="text-sm">{profile?.display_name || "—"}</p>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Display Name</p>
+            <p>{profile?.display_name || "—"}</p>
           </div>
         </div>
       </section>
 
       {/* Merchant Mappings */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs text-muted-foreground uppercase tracking-wide">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xs text-muted-foreground uppercase tracking-wider">
             Merchant Mappings
           </h2>
-          <span className="text-xs text-muted-foreground">{mappings?.length || 0} rules</span>
+          <span className="text-sm text-muted-foreground">{mappings?.length || 0} rules</span>
         </div>
 
         {mappings && mappings.length > 0 ? (
@@ -113,7 +113,7 @@ export default async function SettingsPage() {
 
       {/* Data Management */}
       <section>
-        <h2 className="text-xs text-muted-foreground uppercase tracking-wide mb-4">Data</h2>
+        <h2 className="text-xs text-muted-foreground uppercase tracking-wider mb-6">Data</h2>
         <Card>
           <CardHeader>
             <CardTitle>Export</CardTitle>

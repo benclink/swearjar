@@ -69,9 +69,14 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (
-    <div className="p-8 space-y-8 max-w-6xl">
-      <header>
-        <h1 className="text-lg font-medium">Transactions</h1>
+    <div className="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {count?.toLocaleString()} total transactions
+          </p>
+        </div>
       </header>
 
       <Card>
@@ -86,7 +91,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {count} transactions &middot; Page {page} of {totalPages || 1}
+            Page {page} of {totalPages || 1}
           </CardTitle>
         </CardHeader>
         <CardContent>
