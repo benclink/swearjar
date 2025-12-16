@@ -4,68 +4,62 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 220 20% 10%;
+    /* Ultra-minimal monochromatic palette */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
-    --primary: 220 25% 14%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 10%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 220 14% 94%;
-    --accent-foreground: 220 20% 10%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 8%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 8%;
     --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 25% 14%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 0 0% 8%;
+    --radius: 0.375rem;
 
-    /* Finance-specific colors */
-    --essential: 152 60% 36%;
+    /* Semantic colors - muted, functional */
+    --essential: 142 50% 38%;
     --essential-foreground: 0 0% 100%;
-    --discretionary: 38 92% 50%;
+    --discretionary: 38 70% 50%;
     --discretionary-foreground: 0 0% 0%;
-
-    /* Status colors */
-    --success: 152 60% 36%;
-    --warning: 38 92% 50%;
+    --success: 142 50% 38%;
+    --warning: 38 70% 50%;
   }
 
   .dark {
-    --background: 220 20% 7%;
-    --foreground: 220 14% 96%;
-    --card: 220 20% 9%;
-    --card-foreground: 220 14% 96%;
-    --popover: 220 20% 9%;
-    --popover-foreground: 220 14% 96%;
-    --primary: 220 14% 96%;
-    --primary-foreground: 220 20% 7%;
-    --secondary: 220 16% 14%;
-    --secondary-foreground: 220 14% 96%;
-    --muted: 220 16% 14%;
-    --muted-foreground: 220 10% 56%;
-    --accent: 220 16% 16%;
-    --accent-foreground: 220 14% 96%;
-    --destructive: 0 62% 40%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 16% 16%;
-    --input: 220 16% 16%;
-    --ring: 220 14% 80%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 92%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 0 0% 92%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 92%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 0 0% 80%;
 
-    /* Finance-specific colors (dark mode) */
-    --essential: 152 55% 42%;
-    --essential-foreground: 0 0% 100%;
-    --discretionary: 38 85% 55%;
-    --discretionary-foreground: 0 0% 0%;
-
-    /* Status colors */
-    --success: 152 55% 42%;
-    --warning: 38 85% 55%;
+    --essential: 142 45% 45%;
+    --discretionary: 38 65% 55%;
+    --success: 142 45% 45%;
+    --warning: 38 65% 55%;
   }
 }
 
@@ -75,44 +69,54 @@
   }
 
   html {
-    @apply antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.011em;
   }
 
-  /* Improved focus states */
+  /* Minimal focus states */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    @apply outline-none ring-1 ring-foreground/20 ring-offset-1 ring-offset-background;
   }
 
-  /* Smoother transitions globally */
-  button, a, input, select, textarea {
-    @apply transition-colors duration-150;
+  /* Clean headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
   }
 
-  /* Better number formatting in tables and data */
+  /* Tabular figures for data */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 }
 
 @layer utilities {
-  /* Subtle text balance for headings */
   .text-balance {
     text-wrap: balance;
   }
 
-  /* Hide scrollbar but keep functionality */
+  /* Hide scrollbar */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Subtle fade-in animation */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
   }
 }

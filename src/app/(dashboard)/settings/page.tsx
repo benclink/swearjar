@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportButtons } from "@/components/settings/export-buttons";
 
 interface Profile {
@@ -41,66 +40,52 @@ export default async function SettingsPage() {
   const profile = profileData as Profile | null;
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your account and merchant mappings
-        </p>
-      </div>
+    <div className="p-8 space-y-8 max-w-4xl">
+      <header>
+        <h1 className="text-lg font-medium">Settings</h1>
+      </header>
 
-      {/* Profile Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Your account information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{user.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Display Name</p>
-              <p className="font-medium">{profile?.display_name || "Not set"}</p>
-            </div>
+      {/* Profile */}
+      <section>
+        <h2 className="text-xs text-muted-foreground uppercase tracking-wide mb-4">Account</h2>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Email</p>
+            <p className="text-sm">{user.email}</p>
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Display Name</p>
+            <p className="text-sm">{profile?.display_name || "—"}</p>
+          </div>
+        </div>
+      </section>
 
       {/* Merchant Mappings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Merchant Mappings</CardTitle>
-              <CardDescription>
-                Rules for auto-categorizing transactions. Ask the chat assistant to add new mappings.
-              </CardDescription>
-            </div>
-            <Badge variant="secondary">{mappings?.length || 0} mappings</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {mappings && mappings.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xs text-muted-foreground uppercase tracking-wide">
+            Merchant Mappings
+          </h2>
+          <span className="text-xs text-muted-foreground">{mappings?.length || 0} rules</span>
+        </div>
+
+        {mappings && mappings.length > 0 ? (
+          <Card>
+            <CardContent className="p-0">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="pb-3 font-medium">Merchant Pattern</th>
-                    <th className="pb-3 font-medium">Category</th>
-                    <th className="pb-3 font-medium">Type</th>
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="p-4 font-medium">Pattern</th>
+                    <th className="p-4 font-medium">Category</th>
+                    <th className="p-4 font-medium">Type</th>
                   </tr>
                 </thead>
                 <tbody>
                   {mappings.slice(0, 20).map((mapping) => (
                     <tr key={mapping.id} className="border-b last:border-0">
-                      <td className="py-3 text-sm font-mono">{mapping.merchant_pattern}</td>
-                      <td className="py-3">
-                        <Badge variant="outline">{mapping.category}</Badge>
-                      </td>
-                      <td className="py-3 text-sm text-muted-foreground">
+                      <td className="p-4 font-mono text-xs">{mapping.merchant_pattern}</td>
+                      <td className="p-4">{mapping.category}</td>
+                      <td className="p-4 text-muted-foreground">
                         {mapping.user_id ? "Custom" : "Global"}
                       </td>
                     </tr>
@@ -108,32 +93,36 @@ export default async function SettingsPage() {
                 </tbody>
               </table>
               {mappings.length > 20 && (
-                <p className="text-sm text-muted-foreground mt-4 text-center">
-                  Showing first 20 of {mappings.length} mappings
+                <p className="text-xs text-muted-foreground p-4 text-center border-t">
+                  Showing 20 of {mappings.length}
                 </p>
               )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No merchant mappings yet.</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Try asking: &quot;Learn: Coffee Club should be Dining Out&quot;
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-sm text-muted-foreground">No merchant mappings yet.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Ask the assistant: &quot;Learn: Coffee Club should be Dining Out&quot;
               </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </section>
 
       {/* Data Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Management</CardTitle>
-          <CardDescription>Export or manage your financial data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ExportButtons />
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="text-xs text-muted-foreground uppercase tracking-wide mb-4">Data</h2>
+        <Card>
+          <CardHeader>
+            <CardTitle>Export</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ExportButtons />
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

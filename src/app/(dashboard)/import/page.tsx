@@ -2,11 +2,10 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 type ImportStatus = "idle" | "uploading" | "parsing" | "preview" | "importing" | "complete" | "error";
 
@@ -27,7 +26,6 @@ export default function ImportPage() {
   const [preview, setPreview] = useState<ParsedTransaction[]>([]);
   const [stats, setStats] = useState<{ total: number; categorized: number; needsReview: number } | null>(null);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -135,13 +133,13 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Import Transactions</h1>
-        <p className="text-muted-foreground">
+    <div className="p-8 space-y-8 max-w-4xl">
+      <header>
+        <h1 className="text-lg font-medium">Import</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Upload CSV files from Ubank, PayPal, or other sources
         </p>
-      </div>
+      </header>
 
       {status === "idle" && (
         <Card>

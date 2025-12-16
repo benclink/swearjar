@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
-import { AlertCircle, CheckCircle, Wallet, PiggyBank, TrendingUp } from "lucide-react";
 import { AddBudgetModal } from "@/components/budgets/add-budget-modal";
 
 interface Budget {
@@ -15,7 +14,6 @@ interface BudgetStatus extends Budget {
   remaining: number;
   percentUsed: number;
   onTrack: boolean;
-  status: string;
 }
 
 export default async function BudgetsPage() {
@@ -91,7 +89,6 @@ export default async function BudgetsPage() {
       remaining: b.amount - actual,
       percentUsed: Math.round(percentUsed),
       onTrack,
-      status: onTrack ? "on_track" : percentUsed > 100 ? "over_budget" : "at_risk",
     };
   }) || [];
 
@@ -102,144 +99,75 @@ export default async function BudgetsPage() {
   const remainingFromIncome = totalIncome - totalSpent;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-8 space-y-8 max-w-6xl">
+      <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Budgets</h1>
-          <p className="text-muted-foreground">
-            Track your spending against monthly budgets
+          <h1 className="text-lg font-medium">Budgets</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {Math.round(monthProgress * 100)}% through {now.toLocaleDateString("en-AU", { month: "long" })}
           </p>
         </div>
         <AddBudgetModal
           categories={categories || []}
           existingCategories={budgets?.map(b => b.category) || []}
         />
-      </div>
+      </header>
 
-      {/* Income & Budget Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-            <Wallet className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</div>
-            <p className="text-xs text-muted-foreground">
-              Total income this month
+      {/* Key Metrics */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Income</p>
+          <p className="text-2xl font-medium tabular-nums">{formatCurrency(totalIncome)}</p>
+        </div>
+
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Budgeted</p>
+          <p className="text-2xl font-medium tabular-nums">{formatCurrency(totalBudgeted)}</p>
+          {totalIncome > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {((totalBudgeted / totalIncome) * 100).toFixed(0)}% allocated
             </p>
-          </CardContent>
-        </Card>
+          )}
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budgeted</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalBudgeted)}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalIncome > 0
-                ? `${((totalBudgeted / totalIncome) * 100).toFixed(0)}% of income allocated`
-                : "Set budgets to track spending"}
-            </p>
-          </CardContent>
-        </Card>
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Unallocated</p>
+          <p className={`text-2xl font-medium tabular-nums ${unallocatedIncome < 0 ? "text-destructive" : ""}`}>
+            {formatCurrency(unallocatedIncome)}
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unallocated</CardTitle>
-            <PiggyBank className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${unallocatedIncome >= 0 ? "text-blue-600" : "text-orange-500"}`}>
-              {formatCurrency(unallocatedIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {unallocatedIncome >= 0
-                ? "Income not assigned to budgets"
-                : "Budgets exceed income"}
-            </p>
-          </CardContent>
-        </Card>
+        <div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Remaining</p>
+          <p className={`text-2xl font-medium tabular-nums ${remainingFromIncome >= 0 ? "text-essential" : "text-destructive"}`}>
+            {remainingFromIncome >= 0 ? "+" : ""}{formatCurrency(remainingFromIncome)}
+          </p>
+        </div>
+      </section>
 
-        <Card className={remainingFromIncome >= 0 ? "border-green-500/50" : "border-red-500/50"}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${remainingFromIncome >= 0 ? "text-green-600" : "text-destructive"}`}>
-              {remainingFromIncome >= 0 ? "+" : ""}{formatCurrency(remainingFromIncome)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {remainingFromIncome >= 0
-                ? `${totalIncome > 0 ? ((remainingFromIncome / totalIncome) * 100).toFixed(0) : 0}% of income remaining`
-                : "Overspent this month"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Spending vs Income Progress */}
+      {/* Spending Progress */}
       {totalIncome > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Income Utilization</CardTitle>
-            <CardDescription>
-              {Math.round(monthProgress * 100)}% through {now.toLocaleDateString("en-AU", { month: "long" })} &bull; {formatCurrency(totalSpent)} of {formatCurrency(totalIncome)} spent
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span>Spending Progress</span>
-                <span className={totalSpent > totalIncome ? "text-destructive" : ""}>
-                  {((totalSpent / totalIncome) * 100).toFixed(0)}%
-                </span>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden relative">
-                {/* Expected pace marker */}
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-foreground/30 z-10"
-                  style={{ left: `${monthProgress * 100}%` }}
-                />
-                <div
-                  className={`h-full transition-all ${
-                    totalSpent / totalIncome > monthProgress
-                      ? "bg-orange-500"
-                      : "bg-green-500"
-                  }`}
-                  style={{ width: `${Math.min((totalSpent / totalIncome) * 100, 100)}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {totalSpent / totalIncome <= monthProgress
-                  ? "On track - spending below expected pace"
-                  : "Ahead of pace - spending faster than expected"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Month Progress (shown when no income) */}
-      {totalIncome === 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Month Progress</CardTitle>
-            <CardDescription>
-              {Math.round(monthProgress * 100)}% through {now.toLocaleDateString("en-AU", { month: "long" })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${monthProgress * 100}%` }}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <section>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-muted-foreground">Spending vs Income</span>
+            <span className="tabular-nums">{((totalSpent / totalIncome) * 100).toFixed(0)}%</span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden relative">
+            <div
+              className="absolute top-0 bottom-0 w-px bg-foreground/30"
+              style={{ left: `${monthProgress * 100}%` }}
+            />
+            <div
+              className={`h-full ${totalSpent / totalIncome > monthProgress ? "bg-discretionary" : "bg-essential"}`}
+              style={{ width: `${Math.min((totalSpent / totalIncome) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            {totalSpent / totalIncome <= monthProgress
+              ? "On track"
+              : "Ahead of pace"}
+          </p>
+        </section>
       )}
 
       {/* Budget Cards */}
@@ -247,83 +175,59 @@ export default async function BudgetsPage() {
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <p className="text-lg font-medium">No budgets set</p>
-              {totalIncome > 0 ? (
-                <div className="mt-2 space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Based on your {formatCurrency(totalIncome)} income, here are some suggested allocations:
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2 mt-3">
-                    <span className="text-xs bg-muted px-2 py-1 rounded">
-                      Essentials: {formatCurrency(totalIncome * 0.5)} (50%)
-                    </span>
-                    <span className="text-xs bg-muted px-2 py-1 rounded">
-                      Discretionary: {formatCurrency(totalIncome * 0.3)} (30%)
-                    </span>
-                    <span className="text-xs bg-muted px-2 py-1 rounded">
-                      Savings: {formatCurrency(totalIncome * 0.2)} (20%)
-                    </span>
+              <p className="font-medium">No budgets set</p>
+              {totalIncome > 0 && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <p>Suggested allocations based on your income:</p>
+                  <div className="flex justify-center gap-4 mt-2">
+                    <span>Essentials: {formatCurrency(totalIncome * 0.5)}</span>
+                    <span>Discretionary: {formatCurrency(totalIncome * 0.3)}</span>
+                    <span>Savings: {formatCurrency(totalIncome * 0.2)}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Try asking the chat assistant &quot;Set a {formatCurrency(Math.round(totalIncome * 0.1))} budget for Dining Out&quot;
-                  </p>
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Set monthly budgets to track your spending. Try asking the chat assistant &quot;Set a $500 budget for Dining Out&quot;
-                </p>
               )}
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {budgetStatus.map((budget) => (
             <Card key={budget.id}>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{budget.category}</CardTitle>
-                    {totalIncome > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        {((budget.amount / totalIncome) * 100).toFixed(0)}% of income
-                      </p>
-                    )}
-                  </div>
-                  {budget.onTrack ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-orange-500" />
-                  )}
+                  <CardTitle className="text-sm">{budget.category}</CardTitle>
+                  <span className={`text-xs ${budget.onTrack ? "text-essential" : "text-discretionary"}`}>
+                    {budget.onTrack ? "On track" : "Over pace"}
+                  </span>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{formatCurrency(budget.actual)} spent</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm tabular-nums">
+                    <span>{formatCurrency(budget.actual)}</span>
                     <span className="text-muted-foreground">of {formatCurrency(budget.amount)}</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all ${
+                      className={`h-full ${
                         budget.percentUsed > 100
                           ? "bg-destructive"
                           : budget.onTrack
-                          ? "bg-green-500"
-                          : "bg-orange-500"
+                          ? "bg-foreground"
+                          : "bg-discretionary"
                       }`}
                       style={{ width: `${Math.min(budget.percentUsed, 100)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{budget.percentUsed}% used</span>
-                    <span>{formatCurrency(budget.remaining)} remaining</span>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>{budget.percentUsed}%</span>
+                    <span>{formatCurrency(budget.remaining)} left</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
-        </div>
+        </section>
       )}
     </div>
   );

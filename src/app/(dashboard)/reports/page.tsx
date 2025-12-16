@@ -1,23 +1,23 @@
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, TrendingUp, CreditCard, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, TrendingUp, CreditCard } from "lucide-react";
 
 const reports = [
   {
     title: "Monthly Summary",
-    description: "Detailed breakdown of spending by category for any month",
+    description: "Spending breakdown by category for any month",
     icon: Calendar,
     href: "/reports/monthly",
   },
   {
-    title: "Essential vs Discretionary",
-    description: "Analysis of your spending balance and trends over time",
+    title: "Balance Analysis",
+    description: "Essential vs discretionary spending trends",
     icon: TrendingUp,
     href: "/reports/balance",
   },
   {
-    title: "Subscription Audit",
-    description: "Review all recurring subscriptions and their annual cost",
+    title: "Subscriptions",
+    description: "Recurring charges and annual costs",
     icon: CreditCard,
     href: "/reports/subscriptions",
   },
@@ -25,50 +25,46 @@ const reports = [
 
 export default function ReportsPage() {
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Reports</h1>
-        <p className="text-muted-foreground">
-          Generate detailed financial reports and insights
-        </p>
-      </div>
+    <div className="p-8 space-y-8 max-w-4xl">
+      <header>
+        <h1 className="text-lg font-medium">Reports</h1>
+      </header>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-3">
         {reports.map((report) => (
           <Link key={report.href} href={report.href}>
-            <Card className="h-full hover:border-primary transition-colors cursor-pointer">
-              <CardHeader>
+            <Card className="h-full hover:bg-muted/50 transition-colors cursor-pointer">
+              <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <report.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{report.title}</CardTitle>
+                  <report.icon className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm">{report.title}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <CardDescription>{report.description}</CardDescription>
+                <p className="text-sm text-muted-foreground">{report.description}</p>
               </CardContent>
             </Card>
           </Link>
         ))}
-      </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Reports via Chat</CardTitle>
-          <CardDescription>
-            You can also generate reports by asking the chat assistant. Try:
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>&quot;Show me a summary for November 2025&quot;</li>
-            <li>&quot;Compare my spending this month vs last month&quot;</li>
-            <li>&quot;What are my recurring subscriptions?&quot;</li>
-            <li>&quot;How much have I spent on dining out this year?&quot;</li>
-          </ul>
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="text-xs text-muted-foreground uppercase tracking-wide mb-4">
+          Quick Reports
+        </h2>
+        <Card>
+          <CardContent className="py-6">
+            <p className="text-sm text-muted-foreground mb-3">
+              Ask the assistant for custom reports:
+            </p>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>&quot;Summary for November 2025&quot;</li>
+              <li>&quot;Compare this month vs last month&quot;</li>
+              <li>&quot;How much on dining this year?&quot;</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

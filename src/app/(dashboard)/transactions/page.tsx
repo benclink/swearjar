@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TransactionTable } from "@/components/transactions/transaction-table";
 import { TransactionFilters } from "@/components/transactions/transaction-filters";
 
@@ -69,17 +69,14 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Transactions</h1>
-        <p className="text-muted-foreground">
-          View and manage all your transactions
-        </p>
-      </div>
+    <div className="p-8 space-y-8 max-w-6xl">
+      <header>
+        <h1 className="text-lg font-medium">Transactions</h1>
+      </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Filter Transactions</CardTitle>
+          <CardTitle>Filters</CardTitle>
         </CardHeader>
         <CardContent>
           <TransactionFilters categories={categories || []} />
@@ -89,11 +86,8 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {count} Transaction{count !== 1 ? "s" : ""}
+            {count} transactions &middot; Page {page} of {totalPages || 1}
           </CardTitle>
-          <CardDescription>
-            Page {page} of {totalPages || 1}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <TransactionTable

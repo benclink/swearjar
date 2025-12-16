@@ -5,15 +5,11 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
   MessageSquare,
   X,
   Send,
   Loader2,
-  User,
-  Bot,
   Minimize2,
   Maximize2,
   Sparkles,
@@ -34,7 +30,6 @@ export function ChatPanel() {
   const [error, setError] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
-  const [currentRoute, setCurrentRoute] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Check onboarding status when chat opens
@@ -58,14 +53,13 @@ export function ChatPanel() {
         const data = await response.json();
         setNeedsOnboarding(data.needsOnboarding);
 
-        // Set welcome message based on status
         if (data.needsOnboarding) {
           setMessages([
             {
               id: "welcome",
               role: "assistant",
               content:
-                "Welcome! I'm your personal finance assistant. Before I can give you tailored insights, I'd like to learn about your financial situation.\n\nThis will help me understand your priorities, deliberate trade-offs, and what to watch vs. what to ignore.\n\nReady to get started? Just say hi!",
+                "Welcome. I'll help you track your finances.\n\nFirst, tell me about your financial situation so I can give you relevant insights.",
             },
           ]);
         } else {
@@ -74,20 +68,19 @@ export function ChatPanel() {
               id: "welcome",
               role: "assistant",
               content:
-                "Hi! I'm your finance assistant. I can help you:\n\n- Check your spending\n- Generate insights\n- Manage budgets\n- Answer questions about your finances\n\nWhat would you like to know?",
+                "How can I help with your finances today?",
             },
           ]);
         }
       }
     } catch (err) {
       console.error("Failed to check onboarding status:", err);
-      // Fallback to regular chat
       setNeedsOnboarding(false);
       setMessages([
         {
           id: "welcome",
           role: "assistant",
-          content: "Hi! I'm your finance assistant. How can I help you today?",
+          content: "How can I help?",
         },
       ]);
     }
@@ -123,20 +116,14 @@ export function ChatPanel() {
 
       const data = await response.json();
 
-      // Update conversation ID if provided
       if (data.conversationId) {
         setConversationId(data.conversationId);
       }
 
-      // Track current route for UI hints
-      setCurrentRoute(data.route);
-
-      // Check if onboarding was completed
       if (data.contextUpdated) {
         setNeedsOnboarding(false);
       }
 
-      // Add assistant response
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
@@ -182,71 +169,56 @@ export function ChatPanel() {
 
   if (!isOpen) {
     return (
-      <Button
+      <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-        size="icon"
+        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/90 transition-colors"
       >
-        <MessageSquare className="h-6 w-6" />
-      </Button>
+        <MessageSquare className="h-5 w-5" />
+      </button>
     );
   }
 
   return (
     <div
       className={cn(
-        "fixed bottom-0 right-0 z-50 flex flex-col border-l bg-background shadow-xl transition-all duration-300",
+        "fixed bottom-0 right-0 z-50 flex flex-col bg-background border-l transition-all duration-200",
         isExpanded
-          ? "h-screen w-[600px]"
-          : "h-[600px] w-[400px] m-4 rounded-lg border"
+          ? "h-screen w-[480px]"
+          : "h-[500px] w-[360px] m-4 rounded-md border"
       )}
     >
       {/* Header */}
-      <div className="flex h-14 items-center justify-between border-b px-4">
-        <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-primary" />
-          <span className="font-semibold">
-            {needsOnboarding ? "Financial Setup" : "Finance Assistant"}
-          </span>
-          {currentRoute === "onboarding" && (
-            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-              Setting up
-            </span>
-          )}
-        </div>
+      <div className="flex h-12 items-center justify-between border-b px-4">
+        <span className="text-sm font-medium">
+          {needsOnboarding ? "Setup" : "Assistant"}
+        </span>
         <div className="flex items-center gap-1">
           {!needsOnboarding && (
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={getInsight}
               disabled={isLoading}
-              className="h-8 w-8"
-              title="Get spending insight"
+              className="h-8 w-8 flex items-center justify-center rounded hover:bg-muted disabled:opacity-50 transition-colors"
+              title="Get insight"
             >
               <Sparkles className="h-4 w-4" />
-            </Button>
+            </button>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="h-8 w-8"
+            className="h-8 w-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
           >
             {isExpanded ? (
               <Minimize2 className="h-4 w-4" />
             ) : (
               <Maximize2 className="h-4 w-4" />
             )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+          </button>
+          <button
             onClick={() => setIsOpen(false)}
-            className="h-8 w-8"
+            className="h-8 w-8 flex items-center justify-center rounded hover:bg-muted transition-colors"
           >
             <X className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -257,30 +229,15 @@ export function ChatPanel() {
             <div
               key={message.id}
               className={cn(
-                "flex gap-3",
-                message.role === "user" ? "flex-row-reverse" : ""
+                "flex",
+                message.role === "user" ? "justify-end" : "justify-start"
               )}
             >
-              <Avatar className="h-8 w-8 shrink-0">
-                <AvatarFallback
-                  className={cn(
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  )}
-                >
-                  {message.role === "user" ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <Bot className="h-4 w-4" />
-                  )}
-                </AvatarFallback>
-              </Avatar>
               <div
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm max-w-[80%]",
+                  "rounded-md px-3 py-2 text-sm max-w-[85%]",
                   message.role === "user"
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-foreground text-background"
                     : "bg-muted"
                 )}
               >
@@ -290,46 +247,36 @@ export function ChatPanel() {
           ))}
 
           {isLoading && (
-            <div className="flex gap-3">
-              <Avatar className="h-8 w-8 shrink-0">
-                <AvatarFallback className="bg-muted">
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="rounded-lg bg-muted px-3 py-2">
+            <div className="flex justify-start">
+              <div className="rounded-md bg-muted px-3 py-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              Error: {error}
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
             </div>
           )}
         </div>
       </ScrollArea>
 
-      <Separator />
-
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4">
+      <form onSubmit={handleSubmit} className="p-4 border-t">
         <div className="flex gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              needsOnboarding
-                ? "Tell me about your finances..."
-                : "Ask about your finances..."
-            }
+            placeholder="Ask about your finances..."
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 h-9"
           />
           <Button
             type="submit"
             size="icon"
             disabled={isLoading || !input.trim()}
+            className="h-9 w-9"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
